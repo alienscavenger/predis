@@ -11,10 +11,12 @@
 
 namespace Predis\Connection;
 
+use Bref\Logger\StderrLogger;
 use Predis\Command\CommandInterface;
 use Predis\Response\Error as ErrorResponse;
 use Predis\Response\ErrorInterface as ErrorResponseInterface;
 use Predis\Response\Status as StatusResponse;
+use Psr\Log\LogLevel;
 
 /**
  * Standard connection to Redis servers implemented on top of PHP's streams.
@@ -125,6 +127,10 @@ class StreamConnection extends AbstractConnection
         $timeout = (isset($parameters->timeout) ? (float) $parameters->timeout : 5.0);
 
         if (!$resource = @stream_socket_client($address, $errno, $errstr, $timeout, $flags)) {
+            $logger = new StderrLogger(LogLevel::DEBUG);
+            $logger->notice(json_encode($timeout));
+            $logger->notice(json_encode($address));
+            $logger->notice(json_encode($flags));
             $this->onConnectionError(trim($errstr), $errno);
         }
 
