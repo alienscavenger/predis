@@ -11,6 +11,7 @@
 
 namespace Predis\Connection\Aggregate;
 
+use Bref\Logger\StderrLogger;
 use Predis\Command\CommandInterface;
 use Predis\Command\RawCommand;
 use Predis\CommunicationException;
@@ -22,6 +23,7 @@ use Predis\Replication\ReplicationStrategy;
 use Predis\Replication\RoleException;
 use Predis\Response\ErrorInterface as ErrorResponseInterface;
 use Predis\Response\ServerException;
+use Psr\Log\LogLevel;
 
 /**
  * @author Daniele Alessandri <suppakilla@gmail.com>
@@ -434,6 +436,7 @@ class SentinelReplication implements ReplicationInterface
 
                 $this->add($masterConnection);
             } catch (ConnectionException $exception) {
+                (new StderrLogger(LogLevel::DEBUG))->debug('[get master]: '.$exception->getMessage(), ['exception' => $exception]);
                 $this->sentinelConnection = null;
 
                 goto SENTINEL_QUERY;
@@ -466,6 +469,7 @@ class SentinelReplication implements ReplicationInterface
                     $this->add($this->connectionFactory->create($slaveParameters));
                 }
             } catch (ConnectionException $exception) {
+                (new StderrLogger(LogLevel::DEBUG))->debug('[get slave]: '.$exception->getMessage(), ['exception' => $exception]);
                 $this->sentinelConnection = null;
 
                 goto SENTINEL_QUERY;
